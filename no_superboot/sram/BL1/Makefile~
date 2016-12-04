@@ -1,0 +1,35 @@
+CC      = arm-linux-gcc
+LD      = arm-linux-ld
+AR      = arm-linux-ar
+OBJCOPY = arm-linux-objcopy
+OBJDUMP = arm-linux-objdump
+
+INCLUDEDIR 	:= $(shell pwd)/include
+CFLAGS 		:= -Wall -O2 -fno-builtin
+CPPFLAGS   	:= -nostdinc -I$(INCLUDEDIR)
+
+export 	CC AR LD OBJCOPY OBJDUMP INCLUDEDIR CFLAGS CPPFLAGS 
+
+objs := start.o main.o uart.o clock.o nand_relocate.o lib/libc.a
+
+sram.bin: $(objs)
+	${LD} -Tsdram.lds -o sram.elf $^
+	${OBJCOPY} -O binary -S sram.elf $@
+	${OBJDUMP} -D sram.elf > sram.dis
+	gcc mkv210_image.c -o mkmini210
+	./mkmini210 sram.bin BL1.bin
+
+.PHONY : lib/libc.a
+lib/libc.a:
+	cd lib; make; cd ..
+	
+%.o:%.c
+	${CC} $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+%.o:%.S
+	${CC} $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+clean:
+	make  clean -C lib
+	rm -f *.bin *.elf *.dis *.o mkmini210
+	
