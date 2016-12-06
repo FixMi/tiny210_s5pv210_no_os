@@ -1,4 +1,4 @@
-// ʱ����ؼĴ���
+// 时钟相关寄存器
 #define APLL_LOCK 			( *((volatile unsigned long *)0xE0100000) )		
 #define MPLL_LOCK 			( *((volatile unsigned long *)0xE0100008) )
 
@@ -25,6 +25,9 @@
 #define CLK_DIV6 			( *((volatile unsigned long *)0xE0100318) )
 #define CLK_DIV7 			( *((volatile unsigned long *)0xE010031c) )
 
+
+#define CLK_GATE_IP1 			( *((volatile unsigned long *)0xE0100464) )
+
 #define CLK_DIV0_MASK		0x7fffffff
 
 #define APLL_MDIV       	0x7d
@@ -41,25 +44,25 @@
 
 void clock_init()
 {
-	// 1 ���ø���ʱ�ӿ��أ���ʱ��ʹ��PLL
+	// 1 设置各种时钟开关，暂时不使用PLL
 	CLK_SRC0 = 0x0;
 
 	
-	// 2 ��������ʱ�䣬ʹ��Ĭ��ֵ����
-	// ����PLL��ʱ�Ӵ�Fin������Ŀ��Ƶ��ʱ����Ҫһ����ʱ�䣬������ʱ�� 			
+	// 2 设置锁定时间，使用默认值即可
+	// 设置PLL后，时钟从Fin提升到目标频率时，需要一定的时间，即锁定时间 			
 	APLL_LOCK = 0x0000FFFF;          			
 	MPLL_LOCK = 0x0000FFFF;					
 
 	
-	// 3 ���÷�Ƶ
+	// 3 设置分频
 	CLK_DIV0 = 0x14131440;
 
-	// 4 ����PLL
+	// 4 设置PLL
 	// FOUT= MDIV * FIN / (PDIV*2^(SDIV-1)) = 0x7d*24/(0x3*2^(1-1))=1000 MHz
 	APLL_CON0 = APLL_VAL;
 	// FOUT = MDIV*FIN/(PDIV*2^SDIV)=0x29b*24/(0xc*2^1)= 667 MHz
 	MPLL_CON  = MPLL_VAL;					
 
-	// 5 ���ø���ʱ�ӿ��أ�ʹ��PLL
+	// 5 设置各种时钟开关，使用PLL
 	CLK_SRC0 = 0x10001111;
 }

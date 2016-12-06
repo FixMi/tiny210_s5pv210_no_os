@@ -1,7 +1,9 @@
+
 #define GPF0CON			(*(volatile unsigned long *)0xE0200120)
 #define GPF1CON			(*(volatile unsigned long *)0xE0200140)
 #define GPF2CON			(*(volatile unsigned long *)0xE0200160)
 #define GPF3CON			(*(volatile unsigned long *)0xE0200180)
+
 
 #define GPD0CON			(*(volatile unsigned long *)0xE02000A0)
 #define GPD0DAT			(*(volatile unsigned long *)0xE02000A4)
@@ -54,6 +56,7 @@ void lcd_init(void)
 	GPD0CON |= (1<<4);
 	GPD0DAT |= (1<<1);
 
+#if 1
 	// 10: RGB=FIMD I80=FIMD ITU=FIMD
 	DISPLAY_CONTROL = 2<<0;
 
@@ -105,6 +108,7 @@ void lcd_init(void)
 
 	// 使能channel 0传输数据
 	SHADOWCON = 0x1;
+#endif	
 }
 
 
@@ -154,5 +158,26 @@ void lcd_draw_cross(int row, int col, int halflen, int color)
 {
 	lcd_draw_hline(row, col-halflen, col+halflen, color);
 	lcd_draw_vline(col, row-halflen, row+halflen, color);
+}
+
+
+void lcd_draw_bmp(const unsigned char gImage_bmp[])
+{
+	int i, j;
+	unsigned char *p = (unsigned char *)gImage_bmp;
+	int blue, green, red;
+	int color;
+
+	for (i = 0; i < 480; i++)
+		for (j = 0; j < 800; j++)
+		{
+			blue  = *p++;
+			green = *p++;
+			red   = *p++;
+		
+			color = red << 16 | green << 8 | blue << 0;
+			lcd_draw_pixel(i, j, color);
+		}
+
 }
 

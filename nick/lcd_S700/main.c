@@ -1,5 +1,7 @@
 #include "stdio.h"
 #include "lcd.h"
+#include "bmp.h" 
+#include "test_img.h"
 
 #define WIDTHEIGHT	800
 #define HEIGHT	480
@@ -21,7 +23,9 @@ int main(void)
 //	lcd_draw_pixel(0, 0, 0x00ff00);
 
 
-	lcd_draw_cross(240, 400, 200, 0x0000ff);
+//	lcd_draw_cross(240, 400, 200, 0x0000ff);
+
+	lcd_draw_bmp(gImage_test_img);
 
 	// 打印菜单
 	while(1)
